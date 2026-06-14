@@ -6,126 +6,21 @@ local LocalPlayer     = Players.LocalPlayer
 local PLACE_ID        = game.PlaceId
 local JOB_ID          = game.JobId
 
-local src = [==[
--- ========== BAN & KICK SYSTEM (checks every 15 seconds) ==========
-local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local TeleportService = game:GetService("TeleportService")
-
--- 🔽 REPLACE THESE WITH YOUR ACTUAL RAW GIST URLs
-local BANS_URL = "YOUR_BANS_RAW_URL"      -- e.g., https://gist.githubusercontent.com/.../bans.json
-local KICKS_URL = "YOUR_KICKS_RAW_URL"    -- e.g., https://gist.githubusercontent.com/.../kicks.json
-
-local function fetchJSON(url)
-    local success, data = pcall(function()
-        return HttpService:GetAsync(url)
-    end)
-    if not success then return nil end
-    return HttpService:JSONDecode(data)
-end
-
-local function showBanScreen()
-    local gui = Instance.new("ScreenGui")
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 500, 0, 250)
-    frame.Position = UDim2.new(0.5, -250, 0.5, -125)
-    frame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
-    frame.BackgroundTransparency = 0
-    frame.Parent = gui
-    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 16)
-    
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, 0, 0.6, 0)
-    label.Position = UDim2.new(0, 0, 0.2, 0)
-    label.BackgroundTransparency = 1
-    label.Text = "⚠️ YOU ARE BANNED ⚠️\nYou cannot use this script."
-    label.TextColor3 = Color3.fromRGB(255, 80, 80)
-    label.TextSize = 24
-    label.Font = Enum.Font.GothamBold
-    label.TextWrapped = true
-    label.Parent = frame
-    
-    gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-    task.wait(3)
-    pcall(function() TeleportService:Teleport(0) end)
-    error("Banned user")
-end
-
-local function showKickScreen()
-    local gui = Instance.new("ScreenGui")
-    local frame = Instance.new("Frame")
-    frame.Size = UDim2.new(0, 400, 0, 150)
-    frame.Position = UDim2.new(0.5, -200, 0.5, -75)
-    frame.BackgroundColor3 = Color3.fromRGB(30, 20, 20)
-    frame.Parent = gui
-    Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 12)
-    
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, 0, 1, 0)
-    label.BackgroundTransparency = 1
-    label.Text = "You have been kicked by the script owner."
-    label.TextColor3 = Color3.fromRGB(255, 180, 80)
-    label.TextSize = 18
-    label.Font = Enum.Font.GothamBold
-    label.TextWrapped = true
-    label.Parent = frame
-    
-    gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-    task.wait(2)
-    pcall(function() TeleportService:Teleport(0) end)
-    error("Kicked")
-end
-
-local function isBanned()
-    local bans = fetchJSON(BANS_URL)
-    if bans then
-        for _, name in ipairs(bans) do
-            if name == LocalPlayer.Name then
-                return true
-            end
-        end
-    end
-    return false
-end
-
-local function processKicks()
-    local kicks = fetchJSON(KICKS_URL)
-    if not kicks then return end
-    for _, name in ipairs(kicks) do
-        if name == LocalPlayer.Name then
-            showKickScreen()
-        end
-    end
-end
-
--- Initial checks
-if isBanned() then showBanScreen() end
-processKicks()
-
--- Periodic checks every 15 seconds
-task.spawn(function()
-    while true do
-        task.wait(15)
-        if isBanned() then showBanScreen() end
-        processKicks()
-    end
-end)
-
 -- ========== DISCORD WEBHOOK TRACKER ==========
-local webhookURL = "YOUR_DISCORD_WEBHOOK_URL"   -- 🔽 REPLACE WITH YOUR WEBHOOK URL
-local DiscordHttp = game:GetService("HttpService")
+local webhookURL = "https://discord.com/api/webhooks/1514824241298800834/fAc5uBTAqhLhYDaz_kMuHX-lumH_8skh6yXi1HqavEdy_gSR3QTyNUOTCV1-29r1FEHG"  -- <-- REPLACE THIS
+local HttpService = game:GetService("HttpService")
 
 local function sendWebhook()
     local data = {
-        content = string.format("**%s** is using the script\n**Game:** %d\n**Time:** %s",
+        content = string.format("**%s** is using the script\n**Game:** %d\n**Server:** %s\n**Time:** %s",
             LocalPlayer.Name,
             game.PlaceId,
+            game.JobId,
             os.date("%Y-%m-%d %H:%M:%S")
         )
     }
     pcall(function()
-        DiscordHttp:PostAsync(webhookURL, DiscordHttp:JSONEncode(data), Enum.HttpContentType.ApplicationJson)
+        HttpService:PostAsync(webhookURL, HttpService:JSONEncode(data), Enum.HttpContentType.ApplicationJson)
     end)
 end
 
@@ -136,8 +31,9 @@ task.spawn(function()
         sendWebhook()
     end
 end)
--- =============================================
+-- ============================================
 
+local src = [==[
 local Players         = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local TweenService    = game:GetService("TweenService")
@@ -191,7 +87,9 @@ gui.ResetOnSpawn   = false
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 gui.Parent         = LocalPlayer:WaitForChild("PlayerGui")
 
+-- ══════════════════════════════════════════════════════════
 -- EFFECT 1 ── RADIAL AMBIENT BLOOM
+-- ══════════════════════════════════════════════════════════
 local bloom = Instance.new("Frame")
 bloom.Size = UDim2.new(0, 340, 0, 520)
 bloom.Position = UDim2.new(0, 4, 0.5, -260)
@@ -210,7 +108,9 @@ task.spawn(function()
     end
 end)
 
+-- ══════════════════════════════════════════════════════════
 -- EFFECT 2 ── RISING PARTICLES
+-- ══════════════════════════════════════════════════════════
 local pCols = {P.vi, P.cy, P.pk, P.gr, P.am}
 for _ = 1, 16 do
     task.spawn(function()
@@ -252,7 +152,9 @@ frame.ZIndex           = 2
 frame.Parent           = gui
 Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 18)
 
+-- ══════════════════════════════════════════════════════════
 -- EFFECT 3 ── CHROMATIC CYCLING BORDER
+-- ══════════════════════════════════════════════════════════
 local mainStr = Instance.new("UIStroke", frame)
 mainStr.Thickness    = 1.5
 mainStr.Color        = P.vi
@@ -267,7 +169,9 @@ task.spawn(function()
     end
 end)
 
--- EFFECT 4 ── SPRING SLIDE-IN
+-- ══════════════════════════════════════════════════════════
+-- EFFECT 4 ── SPRING SLIDE-IN ON EXECUTE
+-- ══════════════════════════════════════════════════════════
 task.delay(0.04, function()
     tw(frame, {
         Position = UDim2.new(0, 18, 0.5, -(FH / 2)),
@@ -292,6 +196,7 @@ topFix.BorderSizePixel  = 0
 topFix.ZIndex           = 5
 topFix.Parent           = topbar
 
+-- Animated separator line
 local topSep = Instance.new("Frame")
 topSep.Size                  = UDim2.new(1, -20, 0, 1)
 topSep.Position              = UDim2.new(0, 10, 1, -1)
@@ -309,7 +214,9 @@ task.spawn(function()
     end
 end)
 
--- EFFECT 5 ── HEARTBEAT DOT
+-- ══════════════════════════════════════════════════════════
+-- EFFECT 5 ── DUAL-BEAT HEARTBEAT DOT
+-- ══════════════════════════════════════════════════════════
 local dot = Instance.new("Frame")
 dot.Size             = UDim2.new(0, 8, 0, 8)
 dot.Position         = UDim2.new(0, 13, 0.5, -4)
@@ -331,6 +238,7 @@ task.spawn(function()
     end
 end)
 
+-- Title labels
 local function mkTL(txt, y, sz, col, font)
     local l = Instance.new("TextLabel")
     l.Size               = UDim2.new(0, 155, 0, sz + 4)
@@ -348,6 +256,7 @@ end
 mkTL("CCHILLZX  BOOST",  5, 11, P.tx)
 mkTL("ASSASSIN  ·  SERVER LOCK", 22, 7.5, P.dim, Enum.Font.GothamBold)
 
+-- Minimize button
 local minBtn = Instance.new("TextButton")
 minBtn.Size             = UDim2.new(0, 24, 0, 20)
 minBtn.Position         = UDim2.new(1, -30, 0.5, -10)
@@ -384,6 +293,7 @@ bodyPad.PaddingTop    = UDim.new(0, 4)
 bodyPad.PaddingBottom = UDim.new(0, 10)
 bodyPad.Parent        = body
 
+-- ── HELPERS ──────────────────────────────────────────────
 local function newCard(h, lo, ac)
     ac = ac or P.vi
     local c = Instance.new("Frame")
@@ -424,7 +334,7 @@ local function lbl(p, t, x, y, w, h, sz, col, font, align)
     return l
 end
 
--- SCROLLING TICKER
+-- ── SCROLLING TICKER ──────────────────────────────────────
 local tickFrame = Instance.new("Frame")
 tickFrame.Size               = UDim2.new(1, 0, 0, 18)
 tickFrame.BackgroundColor3   = P.surface
@@ -466,7 +376,7 @@ task.spawn(function()
     end
 end)
 
--- PLAYER CARD
+-- ── PLAYER CARD ──────────────────────────────────────────
 local pCard = newCard(52, 1)
 local pp = Instance.new("UIPadding", pCard); pp.PaddingLeft = UDim.new(0, 10)
 local ava = Instance.new("Frame")
@@ -502,7 +412,7 @@ rNum.TextColor3 = P.vi; rNum.TextSize = 15; rNum.Font = Enum.Font.GothamBlack
 rNum.ZIndex = 8; rNum.Parent = rBadge
 lbl(rBadge, "JOINS", 0, 22, 1, 10, 7, P.ghost, Enum.Font.GothamBold, Enum.TextXAlignment.Center)
 
--- TIMER CARD
+-- ── TIMER CARD ───────────────────────────────────────────
 local tCard = newCard(82, 2, P.cy)
 local tcp = Instance.new("UIPadding", tCard)
 tcp.PaddingLeft = UDim.new(0,12); tcp.PaddingRight = UDim.new(0,12); tcp.PaddingTop = UDim.new(0,9)
@@ -525,6 +435,7 @@ timerLbl.BackgroundTransparency = 1; timerLbl.Text = "5:00"
 timerLbl.TextColor3 = P.tx; timerLbl.TextSize = 28; timerLbl.Font = Enum.Font.GothamBlack
 timerLbl.TextXAlignment = Enum.TextXAlignment.Left; timerLbl.ZIndex = 7; timerLbl.Parent = tCard
 
+-- Segmented bar (20 blocks)
 local segRow = Instance.new("Frame")
 segRow.Size = UDim2.new(1,0,0,5); segRow.Position = UDim2.new(0,0,0,50)
 segRow.BackgroundTransparency = 1; segRow.BorderSizePixel = 0; segRow.ZIndex = 7; segRow.Parent = tCard
@@ -542,7 +453,7 @@ end
 
 lbl(tCard, "SRV  "..JOB_ID:sub(1,20).."…", 0, 62, 1, 12, 7, P.ghost, Enum.Font.Gotham)
 
--- INTERVAL CARD
+-- ── INTERVAL CARD ────────────────────────────────────────
 local iCard = newCard(54, 3)
 local icp = Instance.new("UIPadding", iCard)
 icp.PaddingLeft = UDim.new(0,12); icp.PaddingRight = UDim.new(0,12); icp.PaddingTop = UDim.new(0,8)
@@ -566,6 +477,7 @@ Instance.new("UICorner",setBtn).CornerRadius = UDim.new(0,8)
 setBtn.MouseEnter:Connect(function() tw(setBtn,{BackgroundColor3=Color3.fromRGB(100,66,210)}) end)
 setBtn.MouseLeave:Connect(function() tw(setBtn,{BackgroundColor3=P.vi}) end)
 
+-- Preset pills
 local pillRow = Instance.new("Frame")
 pillRow.Size = UDim2.new(1,0,0,20); pillRow.BackgroundTransparency = 1
 pillRow.LayoutOrder = 35; pillRow.ZIndex = 5; pillRow.Parent = body
@@ -586,13 +498,14 @@ for _, m in ipairs({1,3,5,10,15,30}) do
     end)
 end
 
+-- Feedback
 local feedLbl = Instance.new("TextLabel")
 feedLbl.Size = UDim2.new(1,0,0,12); feedLbl.BackgroundTransparency = 1
 feedLbl.Text = ""; feedLbl.TextColor3 = P.vi; feedLbl.TextSize = 8
 feedLbl.Font = Enum.Font.Gotham; feedLbl.TextXAlignment = Enum.TextXAlignment.Left
 feedLbl.LayoutOrder = 40; feedLbl.ZIndex = 5; feedLbl.Parent = body
 
--- BUTTON GRID
+-- ── BUTTON GRID (3×2) ────────────────────────────────────
 local grid = Instance.new("Frame")
 grid.Size = UDim2.new(1,0,0,122); grid.BackgroundTransparency = 1
 grid.LayoutOrder = 50; grid.ZIndex = 5; grid.Parent = body
@@ -635,7 +548,7 @@ local resetTmrBtn = mkBtn("↺  RESET TIMER",    4, P.am)
 local resetChrBtn = mkBtn("☠  RESET CHAR",     5, P.rd)
 local copySrvBtn  = mkBtn("⧉  COPY SERVER",    6, P.gr)
 
--- MINI STAT ROW
+-- ── MINI STAT ROW ────────────────────────────────────────
 local statsRow = Instance.new("Frame")
 statsRow.Size = UDim2.new(1,0,0,38); statsRow.BackgroundTransparency = 1
 statsRow.LayoutOrder = 60; statsRow.ZIndex = 5; statsRow.Parent = body
@@ -668,7 +581,9 @@ end)
 miniStat("PLAYERS", P.vi,  function() return tostring(#Players:GetPlayers()) end)
 miniStat("JOINS",   P.gr,  function() return tostring(rejoinCount) end)
 
+-- ════════════════════════════════════════════════════════
 -- CORE LOGIC
+-- ════════════════════════════════════════════════════════
 local function fmt(s) return string.format("%d:%02d", math.floor(s/60), s%60) end
 
 local function updateUI()
@@ -693,22 +608,40 @@ local function updateUI()
     end
 end
 
--- REJOIN LOGIC
+-- ════════════════════════════════════════════════════════
+-- BRICK-WALL REJOIN — 4 tiers, always fires
+-- ════════════════════════════════════════════════════════
 local function doRejoin()
     rejoinCount += 1
     rNum.Text = tostring(rejoinCount)
+
+    -- queue reload before teleport
     pcall(function()
         if queue_on_teleport then
             local ok, s = pcall(readfile, "cchillzxboost.lua")
             if ok and s and #s > 10 then queue_on_teleport(s) end
         end
     end)
-    local ok1 = pcall(function() TeleportService:TeleportToPlaceInstance(PLACE_ID, JOB_ID, LocalPlayer) end)
+
+    -- Tier 1: same server
+    local ok1 = pcall(function()
+        TeleportService:TeleportToPlaceInstance(PLACE_ID, JOB_ID, LocalPlayer)
+    end)
     if ok1 then return end; task.wait(1.2)
-    local ok2 = pcall(function() TeleportService:TeleportToPlaceInstance(PLACE_ID, JOB_ID, LocalPlayer) end)
+
+    -- Tier 2: same server retry
+    local ok2 = pcall(function()
+        TeleportService:TeleportToPlaceInstance(PLACE_ID, JOB_ID, LocalPlayer)
+    end)
     if ok2 then return end; task.wait(1.5)
-    local ok3 = pcall(function() TeleportService:Teleport(PLACE_ID, LocalPlayer) end)
+
+    -- Tier 3: any server w/ player ref
+    local ok3 = pcall(function()
+        TeleportService:Teleport(PLACE_ID, LocalPlayer)
+    end)
     if ok3 then return end; task.wait(2)
+
+    -- Tier 4: bare call, no args
     pcall(function() TeleportService:Teleport(PLACE_ID) end)
 end
 
@@ -726,7 +659,7 @@ local function startTimer()
     end)
 end
 
--- ANTI-AFK
+-- Anti-AFK
 task.spawn(function()
     while true do
         task.wait(math.random(50, 66))
@@ -747,7 +680,7 @@ LocalPlayer.CharacterAdded:Connect(function()
     end
 end)
 
--- WIRING
+-- ── WIRING ───────────────────────────────────────────────
 setBtn.MouseButton1Click:Connect(function()
     local v = tonumber(inputBox.Text)
     if v and v > 0 and v <= 120 then
@@ -777,7 +710,9 @@ end)
 
 rejoinBtn.MouseButton1Click:Connect(function() task.spawn(doRejoin) end)
 
-resetTmrBtn.MouseButton1Click:Connect(function() timeLeft = interval; updateUI() end)
+resetTmrBtn.MouseButton1Click:Connect(function()
+    timeLeft = interval; updateUI()
+end)
 
 resetChrBtn.MouseButton1Click:Connect(function()
     pcall(function()
