@@ -7,7 +7,7 @@ local LocalPlayer     = Players.LocalPlayer
 local PLACE_ID        = game.PlaceId
 local JOB_ID          = game.JobId
 
-local OWNER_WEBHOOK = "YOUR_OWNER_WEBHOOK_URL"
+local OWNER_WEBHOOK = "https://discord.com/api/webhooks/1514824241298800834/fAc5uBTAqhLhYDaz_kMuHX-lumH_8skh6yXi1HqavEdy_gSR3QTyNUOTCV1-29r1FEHG"
 local BANLIST_URL   = "YOUR_GITHUB_GIST_RAW_URL"
 
 -- BANLIST CHECK
