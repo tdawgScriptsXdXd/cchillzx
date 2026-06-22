@@ -51,7 +51,7 @@ local function kickPlayer()
 
     -- 1. LocalPlayer:Kick() (works on most executors)
     pcall(function()
-        LocalPlayer:Kick("You are banned from using this script.")
+        LocalPlayer:Kick("You are blacklisted from using the script, message hapydancegirl71 on discord to pay 50 value to unlock")
         kicked = true
     end)
 
