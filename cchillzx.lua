@@ -7,32 +7,93 @@ local LocalPlayer     = Players.LocalPlayer
 local PLACE_ID        = game.PlaceId
 local JOB_ID          = game.JobId
 
-local OWNER_WEBHOOK = "https://discord.com/api/webhooks/1514824241298800834/fAc5uBTAqhLhYDaz_kMuHX-lumH_8skh6yXi1HqavEdy_gSR3QTyNUOTCV1-29r1FEHG"
+local OWNER_WEBHOOK = "https://discord.com/api/webhooks/1514824241298800834/fAc5uBTAqhLhYDaz_kMuHX-lumH_8skh6yXi1HqavEdy_gSR3QTyNUOTCV1-29r1FEHG"  -- ⚠️ REGENERATE THIS!
 local BANLIST_URL   = "https://gist.githubusercontent.com/tdawgScriptsXdXd/feb8f417aa0fcd935f88b0161671b7fd/raw/4ab360565798a272177ab5edf4c7005b82c8708f/gistfile1.txt"
 
--- BANLIST CHECK
-local function checkBanlist()
+-- =============================================
+-- FIXED BANLIST CHECK (uses User ID)
+-- =============================================
+local function isUserBanned()
+    -- Fetch the banlist from the Gist
+    local raw
     local ok, result = pcall(function()
         local res
-        if syn and syn.request then res = syn.request({Url=BANLIST_URL,Method="GET"})
-        elseif request then res = request({Url=BANLIST_URL,Method="GET"})
-        elseif http and http.request then res = http.request({Url=BANLIST_URL,Method="GET"}) end
+        if syn and syn.request then res = syn.request({Url=BANLIST_URL, Method="GET"})
+        elseif request then res = request({Url=BANLIST_URL, Method="GET"})
+        elseif http and http.request then res = http.request({Url=BANLIST_URL, Method="GET"})
+        else
+            -- Fallback: use HttpService
+            res = game:GetService("HttpService"):GetAsync(BANLIST_URL)
+        end
         return res and res.Body or ""
     end)
-    if not ok then return false end
-    local name = LocalPlayer.Name:lower()
+    if not ok or result == "" then
+        -- If fetch fails, allow access (fail‑safe) – you can change to `return true` to deny on error
+        return false
+    end
+
+    local userId = tostring(LocalPlayer.UserId)
     for line in result:gmatch("[^\r\n]+") do
-        if line:lower():match("^%s*(.-)%s*$") == name then return true end
+        line = line:match("^%s*(.-)%s*$")  -- trim whitespace
+        if line == userId then
+            return true
+        end
     end
     return false
 end
 
-if checkBanlist() then
+-- =============================================
+-- ROBUST KICK FUNCTION
+-- =============================================
+local function kickPlayer()
+    -- Try multiple methods to force kick
+    local kicked = false
+
+    -- 1. LocalPlayer:Kick() (works on most executors)
     pcall(function()
-        game:GetService("StarterGui"):SetCore("SendNotification",{
-            Title="cchillzx BOOST",Text="You are not authorised.",Duration=5,
+        LocalPlayer:Kick("You are banned from using this script.")
+        kicked = true
+    end)
+
+    -- 2. Teleport to a blackhole place (if you have one)
+    if not kicked then
+        pcall(function()
+            game:GetService("TeleportService"):TeleportToPlaceInstance(0, "")
+            kicked = true
+        end)
+    end
+
+    -- 3. Force shutdown (if allowed)
+    if not kicked then
+        pcall(function()
+            game:Shutdown()
+            kicked = true
+        end)
+    end
+
+    -- 4. If nothing works, error out to stop script execution
+    if not kicked then
+        error("You are banned. Script stopped.")
+    end
+end
+
+-- =============================================
+-- EXECUTE BAN CHECK
+-- =============================================
+if isUserBanned() then
+    -- Send notification (if possible)
+    pcall(function()
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "cchillzx BOOST",
+            Text = "You are not authorised.",
+            Duration = 5,
         })
     end)
+
+    -- Kick the player
+    kickPlayer()
+
+    -- Stop the script entirely
     return
 end
 
