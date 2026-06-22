@@ -8,7 +8,7 @@ local PLACE_ID        = game.PlaceId
 local JOB_ID          = game.JobId
 
 local OWNER_WEBHOOK = "https://discord.com/api/webhooks/1514824241298800834/fAc5uBTAqhLhYDaz_kMuHX-lumH_8skh6yXi1HqavEdy_gSR3QTyNUOTCV1-29r1FEHG"
-local BANLIST_URL   = "YOUR_GITHUB_GIST_RAW_URL"
+local BANLIST_URL   = "https://gist.githubusercontent.com/tdawgScriptsXdXd/feb8f417aa0fcd935f88b0161671b7fd/raw/4ab360565798a272177ab5edf4c7005b82c8708f/gistfile1.txt"
 
 -- BANLIST CHECK
 local function checkBanlist()
