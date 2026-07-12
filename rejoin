@@ -1,0 +1,10 @@
+local TeleportService = game:GetService("TeleportService")
+local placeId = 2664771962 
+
+-- This function executes the teleport
+local function teleportToPlace()
+    TeleportService:Teleport(placeId, game.Players.LocalPlayer)
+end
+
+-- Call the function
+teleportToPlace()
