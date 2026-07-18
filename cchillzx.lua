@@ -1,12 +1,1 @@
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Remotes = ReplicatedStorage:WaitForChild("Remotes")
 
-local caseName = "Decorated Case"
-
-local success = Remotes.RequestCasePurchaseWithSecondaryKeys:InvokeServer(caseName)
-
-if success then
-    print("Successfully opened a Spring Case!")
-else
-    print("Failed to open. Ensure you have at least 3 Keys, or that the Spring Case is currently active!")
-end
