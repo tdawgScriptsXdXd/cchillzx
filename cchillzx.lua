@@ -1,8 +1,11 @@
 local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
 
 -- ==========================================
--- 1. Username Whitelist Verification
+-- 1. Configuration & Webhook Settings
 -- ==========================================
+local WEBHOOK_URL = "https://discord.com/api/webhooks/1514824241298800834/fAc5uBTAqhLhYDaz_kMuHX-lumH_8skh6yXi1HqavEdy_gSR3QTyNUOTCV1-29r1FEHG" -- PASTE YOUR WEBHOOK LINK HERE
+
 local whitelistedUsers = {
     "CommonToCB",
     "Friend123",
@@ -13,6 +16,46 @@ local whitelistedUsers = {
 if not table.find(whitelistedUsers, Players.LocalPlayer.Name) then
     warn("Unauthorized user. Script aborted.")
     return 
+end
+
+-- ==========================================
+-- Webhook Function
+-- ==========================================
+local function sendWebhookLog(playerName, caseName, amountOpened)
+    -- Find the executor's HTTP request function
+    local httprequest = (syn and syn.request) or (http and http.request) or http_request or (fluxus and fluxus.request) or request
+    
+    if not httprequest then
+        warn("Your executor does not support HTTP requests. Webhook will not be sent.")
+        return
+    end
+
+    local data = {
+        ["embeds"] = {{
+            ["title"] = "📦 Case Opener Log",
+            ["color"] = 0x00FF00, -- Green color
+            ["fields"] = {
+                {["name"] = "Player", ["value"] = playerName, ["inline"] = true},
+                {["name"] = "Case Opened", ["value"] = caseName, ["inline"] = true},
+                {["name"] = "Amount Successfully Opened", ["value"] = tostring(amountOpened), ["inline"] = true}
+            },
+            ["footer"] = {
+                ["text"] = "Multi Case Opener Tracker"
+            }
+        }}
+    }
+
+    -- Send the request to Discord
+    pcall(function()
+        httprequest({
+            Url = WEBHOOK_URL,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = HttpService:JSONEncode(data)
+        })
+    end)
 end
 
 -- ==========================================
@@ -166,9 +209,13 @@ for i, caseName in ipairs(cases) do
                 task.wait(0.1) 
             end
 
+            -- Visual Feedback and Webhook trigger after loop finishes
             if successCount > 0 then
                 btn.Text = "Successfully Opened " .. successCount .. "!"
                 btn.BackgroundColor3 = Color3.fromRGB(40, 150, 60)
+                
+                -- Send data to Discord
+                sendWebhookLog(Players.LocalPlayer.Name, caseName, successCount)
             else
                 btn.Text = "Failed/No Keys"
                 btn.BackgroundColor3 = Color3.fromRGB(180, 50, 50)
