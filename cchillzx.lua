@@ -9,7 +9,7 @@ local WEBHOOK_URL = "https://discord.com/api/webhooks/1514824241298800834/fAc5uB
 local whitelistedUsers = {
     "CommonToCB",
     "Notarealhumanbeingfs",
-    "IMAWW1sf "
+    "IMAWW1sf"
 }
 
 -- Check if the LocalPlayer's name exists in the whitelist table
