@@ -8,7 +8,7 @@ local WEBHOOK_URL = "https://discord.com/api/webhooks/1514824241298800834/fAc5uB
 
 local whitelistedUsers = {
     "CommonToCB",
-    "Friend123",
+    "Notarealhumanbeingfs",
     "AnotherFriend"
 }
 
